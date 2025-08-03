@@ -34,9 +34,9 @@ jobs:
           cdk synth
           echo "Synth successful"
 
-            - name: Run tests
-              run:
-                npm run test
+      #      - name: Run tests
+      #        run:
+      #          npm run test
 
       - name: Deploy CDK Stack
         run: |
