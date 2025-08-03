@@ -7,7 +7,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc -w",
-    "test": "npm run build && jest --coverage",
+    "test": "jest --coverage",
     "cdk": "cdk"
   },
   "devDependencies": {
