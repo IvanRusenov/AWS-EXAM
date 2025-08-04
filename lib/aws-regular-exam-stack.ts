@@ -48,7 +48,7 @@ export class AwsRegularExamStack extends cdk.Stack {
         table.grantReadWriteData(func1)
 
         const deleteFunc = new NodejsFunction(this, "deleteFunc", {
-            handler: "lambdas/deleteFunc.handler",
+            handler: "handler",
             runtime: Runtime.NODEJS_20_X,
             entry: path.join(__dirname, "../src/deleteFunc.ts"),
 
