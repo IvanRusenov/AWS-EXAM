@@ -1,12 +1,12 @@
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {LambdaIntegration, RestApi} from "aws-cdk-lib/aws-apigateway";
+import path from "node:path";
 import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
 import {Runtime, StartingPosition} from "aws-cdk-lib/aws-lambda";
 import {Subscription, SubscriptionProtocol, Topic} from "aws-cdk-lib/aws-sns";
 import {AttributeType, BillingMode, StreamViewType, Table} from "aws-cdk-lib/aws-dynamodb";
 import {DynamoEventSource} from "aws-cdk-lib/aws-lambda-event-sources";
-import * as path from "node:path";
 
 export class AwsRegularExamStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -39,7 +39,6 @@ export class AwsRegularExamStack extends cdk.Stack {
             runtime: Runtime.NODEJS_20_X,
             entry: path.join(__dirname, "../src/func1.ts"),
             environment: {
-                // permissions: [topic],
                 TABLE_NAME: table.tableName,
                 TOPIC_ARN: topic.topicArn,
             }
