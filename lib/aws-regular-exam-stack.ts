@@ -1,7 +1,6 @@
 import * as cdk from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {LambdaIntegration, RestApi} from "aws-cdk-lib/aws-apigateway";
-// import path from "node:path";
 import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
 import {Runtime, StartingPosition} from "aws-cdk-lib/aws-lambda";
 import {Subscription, SubscriptionProtocol, Topic} from "aws-cdk-lib/aws-sns";
