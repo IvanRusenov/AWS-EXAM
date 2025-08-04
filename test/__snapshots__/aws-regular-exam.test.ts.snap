@@ -295,7 +295,7 @@ exports[`Snapshot 1`] = `
             },
           },
         },
-        "Handler": "lambdas/deleteFunc.handler",
+        "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
             "deleteFuncServiceRole5A8AFB6D",
