@@ -30,7 +30,6 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     } else {
         const timestamp = Math.floor(Date.now() / 1000);
         const ttl = timestamp + 1800;
-        // const ttl = timestamp + 60;
 
         await ddb.send(
             new PutItemCommand({
