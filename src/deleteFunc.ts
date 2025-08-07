@@ -6,9 +6,7 @@ const ddb = new DynamoDBClient();
 
 export const handler = async (event: any) => {
 
-    const createdAt = event.createdAt;
-    const now = Math.floor(Date.now() / 1000);
-    const duration = now - createdAt;
+
 
     await ddb.send(new DeleteItemCommand({
         TableName: process.env.TABLE_NAME,
@@ -21,6 +19,10 @@ export const handler = async (event: any) => {
             }
         }
     }));
+
+    const createdAt = event.createdAt;
+    const now = Math.floor(Date.now() / 1000);
+    const duration = now - createdAt;
 
     const msg = `Invalid JSON stayed in DynamoDB for ${duration} seconds!`;
 

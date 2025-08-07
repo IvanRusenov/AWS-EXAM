@@ -31,8 +31,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
     } else {
 
-        const timestamp = Math.floor(Date.now() / 1000) + 60;
-        const delayInMs = 60 * 1000;
+        const timestamp = Math.floor(Date.now() / 1000);
+        const delayInMs = 300 * 1000;
         const futureDate = new Date(Date.now() + delayInMs);
 
         const executeAt = futureDate.toISOString().slice(0, 19);
@@ -68,7 +68,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         return {
             statusCode: 400,
             // body: "Invalid JSON. Stored for 30 mins. Deletion scheduled!"
-            body: "Invalid JSON. Stored for 1 mins. Deletion scheduled!"
+            body: "Invalid JSON. Stored for 5 mins. Deletion scheduled!"
         };
 
     }
