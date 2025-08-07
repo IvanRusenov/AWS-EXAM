@@ -3,7 +3,6 @@ import {DynamoDBClient, PutItemCommand} from "@aws-sdk/client-dynamodb";
 import {PublishCommand, SNSClient} from "@aws-sdk/client-sns";
 import {CreateScheduleCommand, SchedulerClient} from "@aws-sdk/client-scheduler";
 import {randomUUID} from "node:crypto";
-import now = jest.now;
 
 const ddb = new DynamoDBClient();
 const sns = new SNSClient();
@@ -35,7 +34,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const timestamp = Math.floor(Date.now() / 1000);
         // const executeAt = (timestamp + 60); //1min
         // const executeAt = new Date (timestamp + 1800).toISOString(); //30min
-        const executeAt = new Date (now() + 60).toISOString(); //1min
+        const executeAt = new Date (Date.now() + 60 * 1000).toISOString(); //1min
         const itemId = randomUUID();
 
         await ddb.send(
