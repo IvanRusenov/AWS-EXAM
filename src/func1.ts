@@ -58,7 +58,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             Target: {
                 Arn: process.env.DELETE_FUNC_ARN,
                 Input: JSON.stringify({ PK: itemId, createdAt: timestamp }),
-                RoleArn: "ROLE_ADMIN_ARN",
+                RoleArn: process.env.ROLE_ADMIN_ARN,
                 }
         }));
 
