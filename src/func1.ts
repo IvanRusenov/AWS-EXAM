@@ -38,13 +38,14 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const executeAt = futureDate.toISOString().slice(0, 19);
 
         const itemId = randomUUID();
+        const sortKey = `METADATA#${itemId}`;
 
         await ddb.send(
             new PutItemCommand({
                 TableName: process.env.TABLE_NAME,
                 Item: {
                     PK: { S: itemId },
-                    SK: { S: "JSON" },
+                    SK: { S: sortKey },
                     createdAt: { N: String(timestamp) },
                     body: { S: JSON.stringify(body) },
                 },
@@ -59,7 +60,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             ScheduleExpression: `at(${executeAt})`,
             Target: {
                 Arn: process.env.DELETE_FUNC_ARN,
-                Input: JSON.stringify({ PK: itemId, createdAt: timestamp }),
+                Input: JSON.stringify({ PK: itemId, SK: sortKey, createdAt: timestamp }),
                 RoleArn: process.env.ROLE_ADMIN_ARN,
                 }
         }));

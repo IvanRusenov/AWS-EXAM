@@ -15,6 +15,9 @@ export const handler = async (event: any) => {
         Key: {
             PK: {
                 S: event.PK
+            },
+            SK: {
+                S: event.SK
             }
         }
     }));
