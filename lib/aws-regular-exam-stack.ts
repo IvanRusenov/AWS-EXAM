@@ -57,10 +57,6 @@ export class AwsRegularExamStack extends cdk.Stack {
         table.grantReadWriteData(deleteFunc);
         topic.grantPublish(deleteFunc);
 
-        // deleteFunc.addEventSource(new DynamoEventSource(table, {
-        //     startingPosition: StartingPosition.TRIM_HORIZON,
-        // }));
-
         const func1 = new NodejsFunction(this, "func1", {
             handler: "handler",
             runtime: Runtime.NODEJS_20_X,

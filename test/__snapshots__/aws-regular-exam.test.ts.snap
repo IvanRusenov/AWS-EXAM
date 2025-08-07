@@ -38,6 +38,95 @@ exports[`Snapshot 1`] = `
     },
   },
   "Resources": {
+    "adminRoleC345D70B": {
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "lambda.amazonaws.com",
+              },
+            },
+            {
+              "Action": "sts:AssumeRole",
+              "Effect": "Allow",
+              "Principal": {
+                "Service": "scheduler.amazonaws.com",
+              },
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "ManagedPolicyArns": [
+          {
+            "Fn::Join": [
+              "",
+              [
+                "arn:",
+                {
+                  "Ref": "AWS::Partition",
+                },
+                ":iam::aws:policy/AdministratorAccess",
+              ],
+            ],
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Role",
+    },
+    "adminRoleDefaultPolicy4FE403EF": {
+      "Properties": {
+        "PolicyDocument": {
+          "Statement": [
+            {
+              "Action": "sns:Publish",
+              "Effect": "Allow",
+              "Resource": {
+                "Ref": "topic69831491",
+              },
+            },
+            {
+              "Action": [
+                "dynamodb:BatchGetItem",
+                "dynamodb:GetRecords",
+                "dynamodb:GetShardIterator",
+                "dynamodb:Query",
+                "dynamodb:GetItem",
+                "dynamodb:Scan",
+                "dynamodb:ConditionCheckItem",
+                "dynamodb:BatchWriteItem",
+                "dynamodb:PutItem",
+                "dynamodb:UpdateItem",
+                "dynamodb:DeleteItem",
+                "dynamodb:DescribeTable",
+              ],
+              "Effect": "Allow",
+              "Resource": [
+                {
+                  "Fn::GetAtt": [
+                    "orderE5E79FED",
+                    "Arn",
+                  ],
+                },
+                {
+                  "Ref": "AWS::NoValue",
+                },
+              ],
+            },
+          ],
+          "Version": "2012-10-17",
+        },
+        "PolicyName": "adminRoleDefaultPolicy4FE403EF",
+        "Roles": [
+          {
+            "Ref": "adminRoleC345D70B",
+          },
+        ],
+      },
+      "Type": "AWS::IAM::Policy",
+    },
     "apiAccount57E28B43": {
       "DeletionPolicy": "Retain",
       "DependsOn": [
@@ -257,22 +346,6 @@ exports[`Snapshot 1`] = `
       },
       "Type": "AWS::Lambda::Permission",
     },
-    "deleteFuncDynamoDBEventSourcetestStackorder424CD55B345AAC77": {
-      "Properties": {
-        "BatchSize": 100,
-        "EventSourceArn": {
-          "Fn::GetAtt": [
-            "orderE5E79FED",
-            "StreamArn",
-          ],
-        },
-        "FunctionName": {
-          "Ref": "deleteFuncFF12B595",
-        },
-        "StartingPosition": "TRIM_HORIZON",
-      },
-      "Type": "AWS::Lambda::EventSourceMapping",
-    },
     "deleteFuncFF12B595": {
       "DependsOn": [
         "deleteFuncServiceRoleDefaultPolicyB98FF212",
@@ -283,7 +356,7 @@ exports[`Snapshot 1`] = `
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "cf239a3e674cc589fcb3d0eda3c57f82cfcf815879630ec914d6971bad28313c.zip",
+          "S3Key": "e3b5dac5d89f31cadfcbdb0edeb5d7a6617cee35dd42cda58255ae50a37de9cc.zip",
         },
         "Environment": {
           "Variables": {
@@ -376,25 +449,6 @@ exports[`Snapshot 1`] = `
                 "Ref": "topic69831491",
               },
             },
-            {
-              "Action": "dynamodb:ListStreams",
-              "Effect": "Allow",
-              "Resource": "*",
-            },
-            {
-              "Action": [
-                "dynamodb:DescribeStream",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
-              ],
-              "Effect": "Allow",
-              "Resource": {
-                "Fn::GetAtt": [
-                  "orderE5E79FED",
-                  "StreamArn",
-                ],
-              },
-            },
           ],
           "Version": "2012-10-17",
         },
@@ -409,18 +463,30 @@ exports[`Snapshot 1`] = `
     },
     "func14444F01C": {
       "DependsOn": [
-        "func1ServiceRoleDefaultPolicy8B308C18",
-        "func1ServiceRole1BD43CE3",
+        "adminRoleDefaultPolicy4FE403EF",
+        "adminRoleC345D70B",
       ],
       "Properties": {
         "Code": {
           "S3Bucket": {
             "Fn::Sub": "cdk-hnb659fds-assets-\${AWS::AccountId}-\${AWS::Region}",
           },
-          "S3Key": "27118af78fb8d3753e985cd0a79cca5a09dfd48608057b527228163873df313d.zip",
+          "S3Key": "5d1a60b73a8d940c30178642d8dc7d0c5a205c3a030c9f55b4e11cc7ebaeeef4.zip",
         },
         "Environment": {
           "Variables": {
+            "DELETE_FUNC_ARN": {
+              "Fn::GetAtt": [
+                "deleteFuncFF12B595",
+                "Arn",
+              ],
+            },
+            "ROLE_ADMIN_ARN": {
+              "Fn::GetAtt": [
+                "adminRoleC345D70B",
+                "Arn",
+              ],
+            },
             "TABLE_NAME": {
               "Ref": "orderE5E79FED",
             },
@@ -432,95 +498,13 @@ exports[`Snapshot 1`] = `
         "Handler": "index.handler",
         "Role": {
           "Fn::GetAtt": [
-            "func1ServiceRole1BD43CE3",
+            "adminRoleC345D70B",
             "Arn",
           ],
         },
         "Runtime": "nodejs20.x",
       },
       "Type": "AWS::Lambda::Function",
-    },
-    "func1ServiceRole1BD43CE3": {
-      "Properties": {
-        "AssumeRolePolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sts:AssumeRole",
-              "Effect": "Allow",
-              "Principal": {
-                "Service": "lambda.amazonaws.com",
-              },
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "ManagedPolicyArns": [
-          {
-            "Fn::Join": [
-              "",
-              [
-                "arn:",
-                {
-                  "Ref": "AWS::Partition",
-                },
-                ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole",
-              ],
-            ],
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Role",
-    },
-    "func1ServiceRoleDefaultPolicy8B308C18": {
-      "Properties": {
-        "PolicyDocument": {
-          "Statement": [
-            {
-              "Action": "sns:Publish",
-              "Effect": "Allow",
-              "Resource": {
-                "Ref": "topic69831491",
-              },
-            },
-            {
-              "Action": [
-                "dynamodb:BatchGetItem",
-                "dynamodb:GetRecords",
-                "dynamodb:GetShardIterator",
-                "dynamodb:Query",
-                "dynamodb:GetItem",
-                "dynamodb:Scan",
-                "dynamodb:ConditionCheckItem",
-                "dynamodb:BatchWriteItem",
-                "dynamodb:PutItem",
-                "dynamodb:UpdateItem",
-                "dynamodb:DeleteItem",
-                "dynamodb:DescribeTable",
-              ],
-              "Effect": "Allow",
-              "Resource": [
-                {
-                  "Fn::GetAtt": [
-                    "orderE5E79FED",
-                    "Arn",
-                  ],
-                },
-                {
-                  "Ref": "AWS::NoValue",
-                },
-              ],
-            },
-          ],
-          "Version": "2012-10-17",
-        },
-        "PolicyName": "func1ServiceRoleDefaultPolicy8B308C18",
-        "Roles": [
-          {
-            "Ref": "func1ServiceRole1BD43CE3",
-          },
-        ],
-      },
-      "Type": "AWS::IAM::Policy",
     },
     "orderE5E79FED": {
       "DeletionPolicy": "Retain",
@@ -546,13 +530,6 @@ exports[`Snapshot 1`] = `
             "KeyType": "RANGE",
           },
         ],
-        "StreamSpecification": {
-          "StreamViewType": "NEW_AND_OLD_IMAGES",
-        },
-        "TimeToLiveSpecification": {
-          "AttributeName": "ttl",
-          "Enabled": true,
-        },
       },
       "Type": "AWS::DynamoDB::Table",
       "UpdateReplacePolicy": "Retain",
