@@ -34,12 +34,8 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         const timestamp = Math.floor(Date.now() / 1000) + 60;
         const delayInMs = 60 * 1000;
         const futureDate = new Date(Date.now() + delayInMs);
-        futureDate.setMilliseconds(0);
 
-// AWS Scheduler не приема милисекунди -> зануляваме ги
-        futureDate.setMilliseconds(0);
-
-        const executeAt = futureDate.toISOString();
+        const executeAt = futureDate.toISOString().slice(0, 19);
 
         const itemId = randomUUID();
 
