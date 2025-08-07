@@ -53,7 +53,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
         );
 
         await schedulerClient.send(new CreateScheduleCommand({
-            Name: `schedulerDelete#${itemId.replace(/-/g, "")}`,
+            Name: itemId.replace(/-/g, ""),
             FlexibleTimeWindow: {
                 Mode: "OFF"
             },
