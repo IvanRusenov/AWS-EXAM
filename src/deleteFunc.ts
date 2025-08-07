@@ -1,28 +1,30 @@
-import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
+import {PublishCommand, SNSClient} from "@aws-sdk/client-sns";
+import {DeleteItemCommand, DynamoDBClient} from "@aws-sdk/client-dynamodb";
 
 const sns = new SNSClient();
-const topicArn = process.env.TOPIC_ARN!;
+const ddb = new DynamoDBClient();
 
-export async function handler(event:any) {
+export const handler = async (event: any) => {
 
-    console.log(event);
+    const createdAt = event.createdAt;
+    const now = Math.floor(Date.now() / 1000);
+    const duration = now - createdAt;
 
-    for (const record of event.Records) {
-        if (record.eventName === "REMOVE") {
-            const old = record.dynamodb.OldImage;
-            const originalTime = Number(old.timestamp.N);
-            const now = Math.floor(Date.now() / 1000);
-            const duration = now - originalTime;
-
-            const msg = `Invalid JSON stayed in DynamoDB for ${duration} seconds.\n\nContent:\n${old.body.S}`;
-
-            await sns.send(new PublishCommand({
-                TopicArn: topicArn,
-                Subject: "Invalid JSON Deleted",
-                Message: msg,
-            }));
+    await ddb.send(new DeleteItemCommand({
+        TableName: process.env.TABLE_NAME,
+        Key: {
+            PK: {
+                S: event.PK
+            }
         }
-    }
+    }));
 
+    const msg = `Invalid JSON stayed in DynamoDB for ${duration} seconds!`;
+
+    await sns.send(new PublishCommand({
+        TopicArn: process.env.TOPIC_ARN,
+        Subject: "Invalid JSON Deleted",
+        Message: msg
+    }));
 
 }

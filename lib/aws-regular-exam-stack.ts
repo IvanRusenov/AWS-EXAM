@@ -1,16 +1,26 @@
 import * as cdk from 'aws-cdk-lib';
+import {aws_iam} from 'aws-cdk-lib';
 import {Construct} from 'constructs';
 import {LambdaIntegration, RestApi} from "aws-cdk-lib/aws-apigateway";
 import path from "node:path";
 import {NodejsFunction} from "aws-cdk-lib/aws-lambda-nodejs";
-import {Runtime, StartingPosition} from "aws-cdk-lib/aws-lambda";
+import {Runtime} from "aws-cdk-lib/aws-lambda";
 import {Subscription, SubscriptionProtocol, Topic} from "aws-cdk-lib/aws-sns";
-import {AttributeType, BillingMode, StreamViewType, Table} from "aws-cdk-lib/aws-dynamodb";
-import {DynamoEventSource} from "aws-cdk-lib/aws-lambda-event-sources";
+import {AttributeType, BillingMode, Table} from "aws-cdk-lib/aws-dynamodb";
 
 export class AwsRegularExamStack extends cdk.Stack {
     constructor(scope: Construct, id: string, props?: cdk.StackProps) {
         super(scope, id, props);
+
+        const adminRole = new aws_iam.Role(this, 'adminRole', {
+            assumedBy: new aws_iam.CompositePrincipal(
+                new aws_iam.ServicePrincipal('lambda.amazonaws.com'),
+                new aws_iam.ServicePrincipal('scheduler.amazonaws.com')
+            ),
+            managedPolicies: [
+                aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'),
+            ],
+        });
 
         const topic = new Topic(this, "topic");
 
@@ -29,23 +39,8 @@ export class AwsRegularExamStack extends cdk.Stack {
                 name: "SK",
                 type: AttributeType.STRING
             },
-            billingMode: BillingMode.PAY_PER_REQUEST,
-            timeToLiveAttribute: "ttl",
-            stream: StreamViewType.NEW_AND_OLD_IMAGES,
+            billingMode: BillingMode.PAY_PER_REQUEST
         });
-
-        const func1 = new NodejsFunction(this, "func1", {
-            handler: "handler",
-            runtime: Runtime.NODEJS_20_X,
-            entry: path.join(__dirname, "../src/func1.ts"),
-            environment: {
-                TABLE_NAME: table.tableName,
-                TOPIC_ARN: topic.topicArn,
-            }
-        });
-
-        topic.grantPublish(func1);
-        table.grantReadWriteData(func1)
 
         const deleteFunc = new NodejsFunction(this, "deleteFunc", {
             handler: "handler",
@@ -62,13 +57,28 @@ export class AwsRegularExamStack extends cdk.Stack {
         table.grantReadWriteData(deleteFunc);
         topic.grantPublish(deleteFunc);
 
-        deleteFunc.addEventSource(new DynamoEventSource(table, {
-            startingPosition: StartingPosition.TRIM_HORIZON,
-        }));
+        // deleteFunc.addEventSource(new DynamoEventSource(table, {
+        //     startingPosition: StartingPosition.TRIM_HORIZON,
+        // }));
 
-        const api = new RestApi(this, "api");
-        const resource = api.root.addResource("order");
-        resource.addMethod("POST", new LambdaIntegration(func1, {proxy: true}));
+        const func1 = new NodejsFunction(this, "func1", {
+            handler: "handler",
+            runtime: Runtime.NODEJS_20_X,
+            entry: path.join(__dirname, "../src/func1.ts"),
+            role: adminRole,
+            environment: {
+                TABLE_NAME: table.tableName,
+                TOPIC_ARN: topic.topicArn,
+                DELETE_FUNC_ARN: deleteFunc.functionArn,
+                ROLE_ADMIN_ARN: adminRole.roleArn
+            }
+        });
 
+        topic.grantPublish(func1);
+        table.grantReadWriteData(func1)
+
+        const api = new RestApi(this, "api")
+            .root.addResource("order")
+            .addMethod("POST", new LambdaIntegration(func1, {proxy: true}));
     }
 }
