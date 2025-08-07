@@ -31,19 +31,10 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
     } else {
 
-        const timestamp = Math.floor(Date.now() / 1000) + 60;
+        const timestamp = Math.floor(Date.now() / 1000);
         // const executeAt = (timestamp + 60); //1min
         // const executeAt = new Date (timestamp + 1800).toISOString(); //30min
-        const after60sec = Date.now() + 60 * 1000;
-        // Изчисли времето за 60 секунди напред
-        const delayInMs = 60 * 1000;
-        const futureDate = new Date(Date.now() + delayInMs);
-
-// AWS Scheduler не приема милисекунди -> зануляваме ги
-        futureDate.setMilliseconds(0);
-
-// Превръщаме във валиден ISO формат (без милисекунди)
-        const executeAt = futureDate.toISOString();
+        const executeAt = new Date(timestamp + 60).toISOString()
 
         const itemId = randomUUID();
 
@@ -64,7 +55,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             FlexibleTimeWindow: {
                 Mode: "OFF"
             },
-            ScheduleExpression: executeAt,
+            ScheduleExpression: `at(${executeAt})`,
             Target: {
                 Arn: process.env.DELETE_FUNC_ARN,
                 Input: JSON.stringify({ PK: itemId, createdAt: timestamp }),
