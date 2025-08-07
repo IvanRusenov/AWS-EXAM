@@ -39,7 +39,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 // AWS Scheduler не приема милисекунди -> зануляваме ги
         futureDate.setMilliseconds(0);
 
-        const executeAt = futureDate.toDateString();
+        const executeAt = futureDate.toISOString();
 
         const itemId = randomUUID();
 
