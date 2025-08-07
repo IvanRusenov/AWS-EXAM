@@ -22,9 +22,9 @@ export const handler = async (event: any) => {
 
     const createdAt = event.createdAt;
     const now = Math.floor(Date.now() / 1000);
-    const duration = now - createdAt;
+    const duration = Math.floor((now - createdAt)/60);
 
-    const msg = `Invalid JSON stayed in DynamoDB for ${duration} seconds!`;
+    const msg = `Invalid JSON stayed in DynamoDB for ${duration} minutes!`;
 
     await sns.send(new PublishCommand({
         TopicArn: process.env.TOPIC_ARN,
