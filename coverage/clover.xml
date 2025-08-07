@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1754571864853" clover="3.2.0">
-  <project timestamp="1754571864853" name="All files">
+<coverage generated="1754572324004" clover="3.2.0">
+  <project timestamp="1754572324004" name="All files">
     <metrics statements="21" coveredstatements="21" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1" elements="22" coveredelements="22" complexity="0" loc="21" ncloc="21" packages="1" files="1" classes="1"/>
     <file name="aws-regular-exam-stack.ts" path="C:\Users\i_rus\Desktop\AWS-REGULAR-EXAM\lib\aws-regular-exam-stack.ts">
       <metrics statements="21" coveredstatements="21" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>

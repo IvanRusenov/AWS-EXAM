@@ -54,7 +54,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
             FlexibleTimeWindow: {
                 Mode: "OFF"
             },
-            ScheduleExpression: `at${executeAt}`,
+            ScheduleExpression: `at(${executeAt})`,
             Target: {
                 Arn: process.env.DELETE_FUNC_ARN,
                 Input: JSON.stringify({ PK: itemId, createdAt: timestamp }),
