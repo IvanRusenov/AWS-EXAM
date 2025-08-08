@@ -18,8 +18,8 @@ export class AwsRegularExamStack extends cdk.Stack {
                 new aws_iam.ServicePrincipal('scheduler.amazonaws.com')
             ),
             managedPolicies: [
-                aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess'),
-            ],
+                aws_iam.ManagedPolicy.fromAwsManagedPolicyName('AdministratorAccess')
+            ]
         });
 
         const topic = new Topic(this, "topic");
@@ -45,7 +45,7 @@ export class AwsRegularExamStack extends cdk.Stack {
         const deleteFunc = new NodejsFunction(this, "deleteFunc", {
             handler: "handler",
             runtime: Runtime.NODEJS_20_X,
-            entry: path.join(__dirname, "../src/deleteFunc.ts"),
+            entry: path.join(__dirname, "../src/deleteFunction.ts"),
 
             environment: {
                 TABLE_NAME: table.tableName,
@@ -60,7 +60,7 @@ export class AwsRegularExamStack extends cdk.Stack {
         const func1 = new NodejsFunction(this, "func1", {
             handler: "handler",
             runtime: Runtime.NODEJS_20_X,
-            entry: path.join(__dirname, "../src/func1.ts"),
+            entry: path.join(__dirname, "../src/handleJsonSubmission.ts"),
             role: adminRole,
             environment: {
                 TABLE_NAME: table.tableName,

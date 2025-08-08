@@ -6,8 +6,6 @@ const ddb = new DynamoDBClient();
 
 export const handler = async (event: any) => {
 
-
-
     await ddb.send(new DeleteItemCommand({
         TableName: process.env.TABLE_NAME,
         Key: {

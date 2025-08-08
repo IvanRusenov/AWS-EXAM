@@ -14,14 +14,13 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
     const topicArn = process.env.TOPIC_ARN;
     const {valid, value, description, buyer} = JSON.parse(event.body!);
-    const body = JSON.parse(event.body || "{}");
 
     if (valid) {
 
         await sns.send(new PublishCommand({
             TopicArn: topicArn,
             Subject: "Valid JSON Received",
-            Message: JSON.stringify(body, null, 2),
+            Message: JSON.stringify(event.body, null, 2)
         }));
 
         return {
@@ -32,11 +31,9 @@ export const handler = async (event: APIGatewayProxyEvent) => {
     } else {
 
         const timestamp = Math.floor(Date.now() / 1000);
-        const delayInMs = 300 * 1000;
+        const delayInMs = 1800 * 1000; //30 min
         const futureDate = new Date(Date.now() + delayInMs);
-
-        const executeAt = futureDate.toISOString().slice(0, 19);
-
+        const executeAt = futureDate.toISOString().slice(0, 19);//without TZ
         const itemId = randomUUID();
         const sortKey = `METADATA#${itemId}`;
 
@@ -47,13 +44,15 @@ export const handler = async (event: APIGatewayProxyEvent) => {
                     PK: { S: itemId },
                     SK: { S: sortKey },
                     createdAt: { N: String(timestamp) },
-                    body: { S: JSON.stringify(body) },
-                },
+                    value: { S: value },
+                    description: { S: description },
+                    buyer: { S: buyer }
+                }
             })
         );
 
         await schedulerClient.send(new CreateScheduleCommand({
-            Name: itemId.replace(/-/g, ""),
+            Name: itemId, //must be unique
             FlexibleTimeWindow: {
                 Mode: "OFF"
             },
@@ -67,8 +66,7 @@ export const handler = async (event: APIGatewayProxyEvent) => {
 
         return {
             statusCode: 400,
-            // body: "Invalid JSON. Stored for 30 mins. Deletion scheduled!"
-            body: "Invalid JSON. Stored for 5 mins. Deletion scheduled!"
+            body: "Invalid JSON. Stored for 30 mins. Deletion scheduled!"
         };
 
     }
